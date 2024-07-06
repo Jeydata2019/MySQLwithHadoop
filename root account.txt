@@ -1,0 +1,114 @@
+maria_dev
+
+su root
+default passsword is = hadoop
+
+
+su root
+systemctl stop mysqld
+systemctl set-environment MYSQLD_OPTS="--skip-grant-tables --skip-networking"
+systemctl start mysqld
+mysql -uroot
+------- Mysql cmd 
+FLUSH PRIVILEGES;
+alter user 'root'@'localhost' IDENTIFIED BY 'hadoop';
+FLUSH PRIVILEGES;
+QUIT;
+------ CMD
+systemctl unset-environment MYSQLD_OPTS
+systemctl restart mysqld
+
+-- next-- load the data to local---
+
+--launch Mysql and create table -command line
+mysql -u root -p
+
+password : hadoop
+
+---CREATE Table---
+CREATE DATABASE logdata;
+
+--SHOW Databases:
+SHOW DATABASES;
+
+
+--Select Database to create table:
+USE logdata;
+
+--Create table
+CREATE TABLE logdatatable(
+ time VARCHAR(255),
+  device VARCHAR(255),
+  ip VARCHAR(255),
+  request VARCHAR(255),
+  agent_name VARCHAR(255)
+);
+
+--LOAD DATA---
+LOAD DATA LOCAL INFILE '/home/maria_dev/synthetic_logs.txt' INTO TABLE logdatatable;
+
+--Verify the data exisitance 
+SELECT count(*) from logdatatable;
+
+SELECT * FROM logdatatable limit 10;
+
+
+----
+mysql -u root -p
+
+password: hadoop
+
+
+---Grant access to tables :
+GRANT ALL PRIVILEGES ON logdata.* to root@localhost IDENTIFIED BY 'hadoop';
+
+
+--Exit--from MYSQL
+
+-- sqoop import(This has to run in maria_dev)
+JDBC connector, driver , mapper 
+
+
+sqoop import --connect jdbc:mysql://localhost/logdata --driver com.mysql.jdbc.Driver --table logdatatable -m 1 --username root --password hadoop --hive-import
+
+-- log into Ambari-
+files view > user>maria_dev>logdatatable>select part-m-0000 >click open you can see the data
+
+---you can import this hive simply typing --hive-import
+Hives view> using Ambari you can see the imported data 
+
+-files > apps > hive >warehouse
+
+
+mysql -u root -p
+
+password: hadoop
+
+USE logdata;
+
+--Create table
+CREATE TABLE exported_logdatatable(
+ time VARCHAR(255),
+  device VARCHAR(255),
+  ip VARCHAR(255),
+  request VARCHAR(255),
+  agent_name VARCHAR(255)
+);
+
+EXIT from my sql :
+EXIT;
+
+sqoop export --connect jdbc:mysql://localhost/logdata -m 1 --driver com.mysql.jdbc.Driver --table exported_logdatatable --export-dir /apps/hive/warehouse/log_db.db/log_table --input-fields-terminated-by ' ' --username root --password hadoop
+
+mysql -uroot -phadoop;
+
+USE logdata;
+
+SELECT * FROM exported_logdatatable LIMIT 10;
+
+
+
+
+
+
+
