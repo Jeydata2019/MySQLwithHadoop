@@ -36,16 +36,25 @@ SHOW DATABASES;
 USE logdata;
 
 --Create table
-CREATE TABLE logdatatable(
- time VARCHAR(255),
-  device VARCHAR(255),
-  ip VARCHAR(255),
-  request VARCHAR(255),
-  agent_name VARCHAR(255)
+CREATE TABLE logdatatable11 (
+    time VARCHAR(255),
+    device VARCHAR(255),
+    ip VARCHAR(255),
+    request VARCHAR(255),
+    page VARCHAR(255),
+    agent_name VARCHAR(255)
 );
+
 
 --LOAD DATA---
 LOAD DATA LOCAL INFILE '/home/maria_dev/synthetic_logs.txt' INTO TABLE logdatatable;
+
+LOAD DATA LOCAL INFILE '/home/maria_dev/logdata.csv'
+INTO TABLE logdatatable11
+FIELDS TERMINATED BY ' '
+LINES TERMINATED BY '\n'
+(time, device, ip, request, page, agent_name);
+
 
 --Verify the data exisitance 
 SELECT count(*) from logdatatable;
