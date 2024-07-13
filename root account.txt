@@ -47,7 +47,6 @@ CREATE TABLE logdatatable11 (
 
 
 --LOAD DATA---
-LOAD DATA LOCAL INFILE '/home/maria_dev/synthetic_logs.txt' INTO TABLE logdatatable;
 
 LOAD DATA LOCAL INFILE '/home/maria_dev/logdata.csv'
 INTO TABLE logdatatable11
